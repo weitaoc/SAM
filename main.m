@@ -101,7 +101,7 @@ Tsave = 30;
 dt = 0.01;
 Nt = floor(T/dt);
 Np = floor(Tplot/dt);
-Ns = floor(Tsave/dt);
+Ns = 10;%floor(Tsave/dt);
 
 
 for it = 1:Nt
@@ -358,6 +358,25 @@ for it = 1:Nt
         fprintf(fid,'%s\n','LOOKUP_TABLE default');
         for i = 1:length(id_cs)  
             fprintf(fid,'%f\n',CK(id_cs(i)));
+        end
+        fprintf(fid,'\n');
+        
+        clv_sc = clv_source(cell_xyz(:,1),cell_xyz(:,2),cell_xyz(:,3));
+        clv_prod = clv_sc .* ( 2./( 1 + ((wthr1-wn)/klow).^(3*n)) ).*(wn<wthr1)+...
+            clv_sc .* (2./( 1 + ((wn-wthr1)/(wthr2-wthr1)).^(3*n) )).*(wn>=wthr1);
+        fprintf(fid,'%s\n','SCALARS CLV3_expression float');
+        fprintf(fid,'%s\n','LOOKUP_TABLE default');
+        for i = 1:length(id_cs)
+            fprintf(fid,'%f\n',clv_prod(id_cs(i)));
+        end
+        fprintf(fid,'\n');
+        
+        wusR_prod = wusR_source(cell_xyz(:,1),cell_xyz(:,2),cell_xyz(:,3)) ...
+            .* ( kcw1^(4*n)./(kcw1^(4*n)+clv.^(4*n)) );
+        fprintf(fid,'%s\n','SCALARS WUS_expression float');
+        fprintf(fid,'%s\n','LOOKUP_TABLE default');
+        for i = 1:length(id_cs)
+            fprintf(fid,'%f\n',wusR_prod(id_cs(i)));
         end
         fprintf(fid,'\n');
         
